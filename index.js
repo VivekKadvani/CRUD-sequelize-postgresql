@@ -1,5 +1,8 @@
 const express = require('express')
-const UserRouter = require("./routes/route.js")
+const UserRouter = require("./routes/route.js");
+const db = require("./models");
+
+// db.sequelize.sync({ alter: true });
 
 const port = 3000;
 const app = express()

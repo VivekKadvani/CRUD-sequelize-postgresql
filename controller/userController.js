@@ -1,13 +1,14 @@
 
 // const student = require("../data/data")
 
-const { User } = require('../models')
+const { where } = require('sequelize');
+const { Users, country } = require('../models')
 const homepage = (req, res) => {
     res.send("Hello World!")
 }
 
 const getUser = (req, res) => {
-    User.findByPk(req.body.userId)
+    Users.findByPk(req.body.userId, { include: 'country' })
         .then((user) => {
             if (user) {
                 // console.log('User found:', user.toJSON());
@@ -22,9 +23,52 @@ const getUser = (req, res) => {
             res.sendStatus(404)
         });
 }
+const addCountry = (req, res) => {
+    country.create({
+        countryName: req.body.country,
+        userId: req.body.userId
+    }).then((country) => {
+        res.json(country)
+    }).then((error) => {
+        res.json(error)
+    })
 
+}
+const getCountry = async (req, res) => {
+    try {
+        let data = await country.findOne({ where: { countryId: await req.body.cId } })
+        const foreignData = (await data.getUser()).dataValues;
+        console.log(foreignData);
+        data = { ...data.dataValues, foreignData }
+        await res.json(data)
+
+
+        // .then((country) => {
+        //     res.json(country)
+        // }).then((error) => {
+        //     res.json(error)
+        // })
+    }
+    catch (e) {
+        res.status(400).json({ error: e })
+    }
+}
+const deleteCountry = async (req, res) => {
+    country.destroy({
+        where: {
+            countryId: req.body.cId
+        }
+    }).then((result) => {
+        if (result === 1)
+            res.send("Country deleted")
+        elseres.sendStatus(400)
+    }).catch((error) => {
+        console.log(error);
+        res.sendStatus(400)
+    })
+}
 const updateUser = (req, res) => {
-    User.update(
+    Users.update(
         { firstName: 'master vk', address: 'guj' },
         { where: { id: req.body.userId } }
     )
@@ -42,7 +86,7 @@ const updateUser = (req, res) => {
 }
 
 const deleteUser = (req, res) => {
-    User.destroy({ where: { id: req.body.userId } })
+    Users.destroy({ where: { id: req.body.userId } })
         .then((result) => {
             console.log('User deleted:', result === 1 ? 'Success' : 'Not found');
             if (result === 1)
@@ -57,11 +101,11 @@ const deleteUser = (req, res) => {
 }
 
 const insertUser = async (req, res) => {
-    await User.create({
-        firstName: 'vivek',
-        lastName: 'kadvani',
-        email: 'vk@example.com',
-        address: 'ahmd'
+    await Users.create({
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        email: req.body.email,
+        address: req.body.address
 
     })
         .then((user) => {
@@ -79,5 +123,8 @@ module.exports = {
     getUser,
     updateUser,
     deleteUser,
-    insertUser
+    insertUser,
+    addCountry,
+    getCountry,
+    deleteCountry
 }

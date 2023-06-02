@@ -1,7 +1,7 @@
 const express = require('express')
 const router = express.Router()
-const userMiddleware = require('../middleware/route.js')
-const { homepage, getUser, updateUser, deleteUser, insertUser } = require("../controller/userController")
+const { validateUser } = require('../middleware/route.js')
+const { homepage, getUser, updateUser, deleteUser, insertUser, addCountry, getCountry, deleteCountry } = require("../controller/userController")
 
 router.get('/', homepage)
 
@@ -11,6 +11,11 @@ router.put('/updatestudents', updateUser)
 
 router.delete('/delstudents', deleteUser)
 
-router.post('/student', insertUser)
+router.post('/student', validateUser, insertUser)
+router.post('/country', addCountry)
+router.post('/getcountry', getCountry)
+router.delete('/delcountry', deleteCountry)
+
+
 
 module.exports = router
